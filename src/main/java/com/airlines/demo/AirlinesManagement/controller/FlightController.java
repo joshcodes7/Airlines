@@ -7,8 +7,13 @@ import com.airlines.demo.AirlinesManagement.service.FlightService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.http.ResponseEntity;
+import org.springframework.retry.annotation.Backoff;
+import org.springframework.retry.annotation.Retryable;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.client.HttpClientErrorException;
+import org.springframework.web.client.ResourceAccessException;
 
 import java.time.LocalTime;
 import java.util.List;
@@ -20,6 +25,7 @@ public class FlightController {
     @Autowired
     private FlightService flightService;
 
+    @Cacheable("flights")
     @Operation(summary = "Get All flight details", description = "Get all the flight and its details present in the db using the get call.")
     @GetMapping("/flight/allFlights")
     public List<Flight> getById(){
@@ -34,6 +40,11 @@ public class FlightController {
 
     @Operation(summary = "Modify a flight", description = "Update details/details of a flight by giving the flight id.")
     @PutMapping("/flightadmin/modifyFlight/{uid}")
+    @Retryable(
+            include = ResourceAccessException.class,
+            exclude =  HttpClientErrorException.class,
+            backoff = @Backoff(delay = 1000, multiplier = 2)
+    )
     public void modifyFlight(@PathVariable Long uid, @RequestBody Flight flight){
         flightService.modifyFlight(uid, flight);
     }

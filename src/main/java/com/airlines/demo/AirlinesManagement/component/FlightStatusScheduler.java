@@ -3,6 +3,7 @@ package com.airlines.demo.AirlinesManagement.component;
 import com.airlines.demo.AirlinesManagement.model.Flight;
 import com.airlines.demo.AirlinesManagement.repository.FlightRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.retry.annotation.EnableRetry;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
@@ -10,6 +11,7 @@ import java.time.LocalTime;
 import java.util.List;
 
 @Component
+@EnableRetry
 public class FlightStatusScheduler {
 
     @Autowired
